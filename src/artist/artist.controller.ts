@@ -3,64 +3,64 @@ import {
   Get,
   Post,
   Body,
+  Patch,
   Param,
   Delete,
   ParseUUIDPipe,
   HttpCode,
-  Put,
   Res,
+  Put,
 } from '@nestjs/common';
-import { UserService } from './user.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdatePasswordDto } from './dto/update-password.dto';
+import { ArtistService } from './artist.service';
+import { CreateArtistDto } from './dto/create-artist.dto';
+import { UpdateArtistDto } from './dto/update-artist.dto';
 import { StatusCodes } from 'http-status-codes/build/cjs/status-codes';
 import { Response } from 'express';
+import { UpdatePasswordDto } from '../user/dto/update-password.dto';
 
-@Controller('user')
-export class UserController {
-  constructor(private readonly userService: UserService) {}
+@Controller('artist')
+export class ArtistController {
+  constructor(private readonly artistService: ArtistService) {}
 
   @Post()
   @HttpCode(StatusCodes.CREATED)
-  async create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
+  create(@Body() createArtistDto: CreateArtistDto) {
+    return this.artistService.create(createArtistDto);
   }
 
   @Get()
   findAll() {
-    return this.userService.findAll();
+    return this.artistService.findAll();
   }
 
+  @HttpCode(StatusCodes.OK)
   @Get(':id')
   async findOne(
     @Param('id', ParseUUIDPipe) id: string,
     @Res({ passthrough: true }) response: Response,
   ) {
-    const maybeUser = await this.userService.findOne(id);
-    if (maybeUser === null) {
+    const maybeArtist = await this.artistService.findOne(id);
+    if (maybeArtist === null) {
       response.status(StatusCodes.NOT_FOUND);
       return;
     } else {
-      return maybeUser;
+      return maybeArtist;
     }
   }
 
   @Put(':id')
   async update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateUserDto: UpdatePasswordDto,
+    @Body() updateUserDto: UpdateArtistDto,
     @Res({ passthrough: true }) response: Response,
   ) {
-    const maybeUpdateResult = await this.userService.update(id, updateUserDto);
+    const maybeArtist = await this.artistService.update(id, updateUserDto);
 
-    if (maybeUpdateResult === null) {
+    if (maybeArtist === null) {
       response.status(StatusCodes.NOT_FOUND);
       return;
-    } else if (maybeUpdateResult === 'wrong-password') {
-      response.status(StatusCodes.FORBIDDEN);
-      return;
     } else {
-      return maybeUpdateResult;
+      return maybeArtist;
     }
   }
 
@@ -70,13 +70,13 @@ export class UserController {
     @Param('id', ParseUUIDPipe) id: string,
     @Res({ passthrough: true }) response: Response,
   ) {
-    const maybeUser = await this.userService.remove(id);
+    const maybeArtist = await this.artistService.remove(id);
 
-    if (maybeUser === null) {
+    if (maybeArtist === null) {
       response.status(StatusCodes.NOT_FOUND);
       return;
     } else {
-      return maybeUser;
+      return maybeArtist;
     }
   }
 }
