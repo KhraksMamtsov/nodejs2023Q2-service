@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import * as crypto from 'node:crypto';
-import { filter } from 'rxjs';
 
-type TableName = 'user' | 'artist' | 'album' | 'track';
+type TableName = 'user' | 'artist' | 'album' | 'track' | 'favorites';
 type EntityType = { readonly id: string };
 
 @Injectable()
@@ -11,6 +10,7 @@ export class DatabaseService {
     track: new Map(),
     user: new Map(),
     artist: new Map(),
+    favorites: new Map(),
     album: new Map(),
   };
 
@@ -36,11 +36,12 @@ export class DatabaseService {
   async create<X>(
     tableName: TableName,
     entityArgs: Omit<X, keyof EntityType>,
+    id?: string,
   ): Promise<X & EntityType> {
-    const id = crypto.randomUUID();
-    const newEntity = { id, ...entityArgs };
+    const _id = id ?? crypto.randomUUID();
+    const newEntity = { id: _id, ...entityArgs };
 
-    this.db[tableName].set(id, newEntity);
+    this.db[tableName].set(_id, newEntity);
 
     return newEntity as X & EntityType;
   }
