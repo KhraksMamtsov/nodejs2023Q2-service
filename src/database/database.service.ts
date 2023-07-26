@@ -1,12 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import * as crypto from 'node:crypto';
+import { filter } from 'rxjs';
 
-type TableName = 'user' | 'artist' | 'album';
+type TableName = 'user' | 'artist' | 'album' | 'track';
 type EntityType = { readonly id: string };
 
 @Injectable()
 export class DatabaseService {
   private readonly db: Readonly<Record<TableName, Map<string, EntityType>>> = {
+    track: new Map(),
     user: new Map(),
     artist: new Map(),
     album: new Map(),
@@ -14,6 +16,15 @@ export class DatabaseService {
 
   async exists(tableName: TableName, id: string): Promise<boolean> {
     return this.db[tableName].has(id);
+  }
+
+  async findWhere<T extends EntityType>(
+    tableName: TableName,
+    predicate: (entity: T) => boolean,
+  ): Promise<ReadonlyArray<T>> {
+    return (
+      [...this.db[tableName].values()] as unknown as ReadonlyArray<T>
+    ).filter(predicate);
   }
 
   async findAll<T extends EntityType>(
