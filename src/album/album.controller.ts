@@ -5,30 +5,30 @@ import {
   Body,
   Param,
   Delete,
-  ParseUUIDPipe,
   HttpCode,
+  ParseUUIDPipe,
   Res,
   Put,
 } from '@nestjs/common';
-import { ArtistService } from './artist.service';
-import { CreateArtistDto } from './dto/create-artist.dto';
-import { UpdateArtistDto } from './dto/update-artist.dto';
+import { AlbumService } from './album.service';
+import { CreateAlbumDto } from './dto/create-album.dto';
 import { StatusCodes } from 'http-status-codes/build/cjs/status-codes';
 import { Response } from 'express';
+import { UpdateArtistDto } from '../artist/dto/update-artist.dto';
 
-@Controller('artist')
-export class ArtistController {
-  constructor(private readonly artistService: ArtistService) {}
+@Controller('album')
+export class AlbumController {
+  constructor(private readonly albumService: AlbumService) {}
 
   @Post()
   @HttpCode(StatusCodes.CREATED)
-  create(@Body() createArtistDto: CreateArtistDto) {
-    return this.artistService.create(createArtistDto);
+  create(@Body() createAlbumDto: CreateAlbumDto) {
+    return this.albumService.create(createAlbumDto);
   }
 
   @Get()
   findAll() {
-    return this.artistService.findAll();
+    return this.albumService.findAll();
   }
 
   @Get(':id')
@@ -36,12 +36,12 @@ export class ArtistController {
     @Param('id', ParseUUIDPipe) id: string,
     @Res({ passthrough: true }) response: Response,
   ) {
-    const maybeArtist = await this.artistService.findOne(id);
-    if (maybeArtist === null) {
+    const maybeAlbum = await this.albumService.findOne(id);
+    if (maybeAlbum === null) {
       response.status(StatusCodes.NOT_FOUND);
       return;
     } else {
-      return maybeArtist;
+      return maybeAlbum;
     }
   }
 
@@ -51,13 +51,13 @@ export class ArtistController {
     @Body() updateUserDto: UpdateArtistDto,
     @Res({ passthrough: true }) response: Response,
   ) {
-    const maybeArtist = await this.artistService.update(id, updateUserDto);
+    const maybeAlbum = await this.albumService.update(id, updateUserDto);
 
-    if (maybeArtist === null) {
+    if (maybeAlbum === null) {
       response.status(StatusCodes.NOT_FOUND);
       return;
     } else {
-      return maybeArtist;
+      return maybeAlbum;
     }
   }
 
@@ -67,13 +67,13 @@ export class ArtistController {
     @Param('id', ParseUUIDPipe) id: string,
     @Res({ passthrough: true }) response: Response,
   ) {
-    const maybeArtist = await this.artistService.remove(id);
+    const maybeAlbum = await this.albumService.remove(id);
 
-    if (maybeArtist === null) {
+    if (maybeAlbum === null) {
       response.status(StatusCodes.NOT_FOUND);
       return;
     } else {
-      return maybeArtist;
+      return maybeAlbum;
     }
   }
 }

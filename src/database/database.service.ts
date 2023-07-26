@@ -1,15 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import * as crypto from 'node:crypto';
 
-type TableName = 'user' | 'artist';
+type TableName = 'user' | 'artist' | 'album';
 type EntityType = { readonly id: string };
 
 @Injectable()
 export class DatabaseService {
-  private readonly db = {
-    user: new Map<string, EntityType>(),
-    artist: new Map<string, EntityType>(),
+  private readonly db: Readonly<Record<TableName, Map<string, EntityType>>> = {
+    user: new Map(),
+    artist: new Map(),
+    album: new Map(),
   };
+
+  async exists(tableName: TableName, id: string): Promise<boolean> {
+    return this.db[tableName].has(id);
+  }
 
   async findAll<T extends EntityType>(
     tableName: TableName,
