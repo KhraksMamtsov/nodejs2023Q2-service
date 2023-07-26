@@ -1,15 +1,21 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { DatabaseService } from '../database/database.service';
 import { Album } from './entities/album.entity';
 import { UpdateAlbumDto } from './dto/update-album.dto';
 import { TrackService } from '../track/track.service';
+import { FavoritesService } from '../favorites/favorites.service';
 
 @Injectable()
 export class AlbumService {
   constructor(
     readonly database: DatabaseService,
+
+    @Inject(forwardRef(() => TrackService))
     readonly trackService: TrackService,
+
+    @Inject(forwardRef(() => FavoritesService))
+    readonly favoritesService: FavoritesService,
   ) {}
 
   async create(createAlbumDto: CreateAlbumDto) {
@@ -56,7 +62,10 @@ export class AlbumService {
     if (deletedAlbum === null) {
       return null;
     } else {
-      await this.trackService.clearAlbum(deletedAlbum.id);
+      await Promise.all([
+        this.favoritesService.removeAlbum(deletedAlbum.id),
+        this.trackService.clearAlbum(deletedAlbum.id),
+      ]);
       return new Album(deletedAlbum);
     }
   }
