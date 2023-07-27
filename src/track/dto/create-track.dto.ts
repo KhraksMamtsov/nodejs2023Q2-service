@@ -1,17 +1,33 @@
-import { IsNumber, IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsInt, IsOptional, IsString, IsUUID } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateTrackDto {
+  @ApiProperty({})
   @IsString()
   readonly name: string;
 
+  @ApiProperty({
+    format: 'uuid',
+    required: false,
+    nullable: true,
+  })
   @IsUUID(4)
   @IsOptional()
-  readonly artistId: string | null; // refers to Artist
+  readonly artistId: string | null;
 
+  @ApiProperty({
+    format: 'uuid',
+    required: false,
+    nullable: true,
+  })
   @IsUUID(4)
   @IsOptional()
-  readonly albumId: string | null; // refers to Album
+  readonly albumId: string | null;
 
-  @IsNumber()
-  readonly duration: number; // integer number
+  @ApiProperty({
+    type: 'integer',
+    description: 'In seconds',
+  })
+  @IsInt()
+  readonly duration: number;
 }
