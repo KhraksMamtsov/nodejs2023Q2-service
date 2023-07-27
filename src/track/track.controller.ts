@@ -14,7 +14,9 @@ import { TrackService } from './track.service';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
 import { StatusCodes } from 'http-status-codes/build/cjs/status-codes';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Track')
 @Controller('track')
 export class TrackController {
   constructor(private readonly trackService: TrackService) {}
