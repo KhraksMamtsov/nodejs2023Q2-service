@@ -1,16 +1,15 @@
 import {
   Controller,
-  Get,
-  Post,
-  Param,
   Delete,
-  ParseUUIDPipe,
-  Res,
+  Get,
   HttpCode,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  UnprocessableEntityException,
 } from '@nestjs/common';
 import { FavoritesService } from './favorites.service';
 import { StatusCodes } from 'http-status-codes';
-import { Response } from 'express';
 
 @Controller('favs')
 export class FavoritesController {
@@ -22,15 +21,11 @@ export class FavoritesController {
   }
 
   @Post('track/:id')
-  async addTrack(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Res({ passthrough: true }) response: Response,
-  ) {
+  async addTrack(@Param('id', ParseUUIDPipe) id: string) {
     const maybeResult = await this.favoritesService.addTrack(id);
 
     if (maybeResult === null) {
-      response.status(StatusCodes.UNPROCESSABLE_ENTITY);
-      return;
+      throw new UnprocessableEntityException(`There is no track with id ${id}`);
     }
     return maybeResult;
   }
@@ -43,44 +38,36 @@ export class FavoritesController {
   }
 
   @Post('artist/:id')
-  async addArtist(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Res({ passthrough: true }) response: Response,
-  ) {
+  async addArtist(@Param('id', ParseUUIDPipe) id: string) {
     const maybeResult = await this.favoritesService.addArtist(id);
 
     if (maybeResult === null) {
-      response.status(StatusCodes.UNPROCESSABLE_ENTITY);
-      return;
+      throw new UnprocessableEntityException(
+        `There is no artist with id ${id}`,
+      );
     }
     return maybeResult;
   }
 
   @Delete('artist/:id')
   @HttpCode(StatusCodes.NO_CONTENT)
-  async removeArtist(@Param('id', ParseUUIDPipe) id: string) {
-    const deleteResult = await this.favoritesService.removeArtist(id);
-    return deleteResult;
+  removeArtist(@Param('id', ParseUUIDPipe) id: string) {
+    return this.favoritesService.removeArtist(id);
   }
 
   @Post('album/:id')
-  async addAlbum(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Res({ passthrough: true }) response: Response,
-  ) {
+  async addAlbum(@Param('id', ParseUUIDPipe) id: string) {
     const maybeResult = await this.favoritesService.addAlbum(id);
 
     if (maybeResult === null) {
-      response.status(StatusCodes.UNPROCESSABLE_ENTITY);
-      return;
+      throw new UnprocessableEntityException(`There is no album with id ${id}`);
     }
     return maybeResult;
   }
 
   @Delete('album/:id')
   @HttpCode(StatusCodes.NO_CONTENT)
-  async removeAlbum(@Param('id', ParseUUIDPipe) id: string) {
-    const deleteResult = await this.favoritesService.removeAlbum(id);
-    return deleteResult;
+  removeAlbum(@Param('id', ParseUUIDPipe) id: string) {
+    return this.favoritesService.removeAlbum(id);
   }
 }

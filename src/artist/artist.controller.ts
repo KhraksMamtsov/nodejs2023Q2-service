@@ -7,14 +7,13 @@ import {
   Delete,
   ParseUUIDPipe,
   HttpCode,
-  Res,
   Put,
+  NotFoundException,
 } from '@nestjs/common';
 import { ArtistService } from './artist.service';
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
 import { StatusCodes } from 'http-status-codes/build/cjs/status-codes';
-import { Response } from 'express';
 
 @Controller('artist')
 export class ArtistController {
@@ -32,14 +31,10 @@ export class ArtistController {
   }
 
   @Get(':id')
-  async findOne(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Res({ passthrough: true }) response: Response,
-  ) {
+  async findOne(@Param('id', ParseUUIDPipe) id: string) {
     const maybeArtist = await this.artistService.findOne(id);
     if (maybeArtist === null) {
-      response.status(StatusCodes.NOT_FOUND);
-      return;
+      throw new NotFoundException(`There is no artist with id ${id}`);
     } else {
       return maybeArtist;
     }
@@ -48,14 +43,12 @@ export class ArtistController {
   @Put(':id')
   async update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateUserDto: UpdateArtistDto,
-    @Res({ passthrough: true }) response: Response,
+    @Body() updateArtistDto: UpdateArtistDto,
   ) {
-    const maybeArtist = await this.artistService.update(id, updateUserDto);
+    const maybeArtist = await this.artistService.update(id, updateArtistDto);
 
     if (maybeArtist === null) {
-      response.status(StatusCodes.NOT_FOUND);
-      return;
+      throw new NotFoundException(`There is no artist with id ${id}`);
     } else {
       return maybeArtist;
     }
@@ -63,15 +56,11 @@ export class ArtistController {
 
   @Delete(':id')
   @HttpCode(StatusCodes.NO_CONTENT)
-  async remove(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Res({ passthrough: true }) response: Response,
-  ) {
+  async remove(@Param('id', ParseUUIDPipe) id: string) {
     const maybeArtist = await this.artistService.remove(id);
 
     if (maybeArtist === null) {
-      response.status(StatusCodes.NOT_FOUND);
-      return;
+      throw new NotFoundException(`There is no artist with id ${id}`);
     } else {
       return maybeArtist;
     }

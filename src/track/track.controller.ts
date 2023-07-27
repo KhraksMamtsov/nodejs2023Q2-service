@@ -3,21 +3,17 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   HttpCode,
   ParseUUIDPipe,
-  Res,
   Put,
+  NotFoundException,
 } from '@nestjs/common';
 import { TrackService } from './track.service';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
 import { StatusCodes } from 'http-status-codes/build/cjs/status-codes';
-import { CreateAlbumDto } from '../album/dto/create-album.dto';
-import { Response } from 'express';
-import { UpdateArtistDto } from '../artist/dto/update-artist.dto';
 
 @Controller('track')
 export class TrackController {
@@ -35,14 +31,10 @@ export class TrackController {
   }
 
   @Get(':id')
-  async findOne(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Res({ passthrough: true }) response: Response,
-  ) {
+  async findOne(@Param('id', ParseUUIDPipe) id: string) {
     const maybeTrack = await this.trackService.findOne(id);
     if (maybeTrack === null) {
-      response.status(StatusCodes.NOT_FOUND);
-      return;
+      throw new NotFoundException(`There is no track with id ${id}`);
     } else {
       return maybeTrack;
     }
@@ -52,13 +44,11 @@ export class TrackController {
   async update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateTrackDto: UpdateTrackDto,
-    @Res({ passthrough: true }) response: Response,
   ) {
     const maybeTrack = await this.trackService.update(id, updateTrackDto);
 
     if (maybeTrack === null) {
-      response.status(StatusCodes.NOT_FOUND);
-      return;
+      throw new NotFoundException(`There is no track with id ${id}`);
     } else {
       return maybeTrack;
     }
@@ -66,15 +56,11 @@ export class TrackController {
 
   @Delete(':id')
   @HttpCode(StatusCodes.NO_CONTENT)
-  async remove(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Res({ passthrough: true }) response: Response,
-  ) {
+  async remove(@Param('id', ParseUUIDPipe) id: string) {
     const maybeTrack = await this.trackService.remove(id);
 
     if (maybeTrack === null) {
-      response.status(StatusCodes.NOT_FOUND);
-      return;
+      throw new NotFoundException(`There is no track with id ${id}`);
     } else {
       return maybeTrack;
     }

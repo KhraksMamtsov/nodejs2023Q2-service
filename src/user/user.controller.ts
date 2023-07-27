@@ -8,13 +8,13 @@ import {
   ParseUUIDPipe,
   HttpCode,
   Put,
-  Res,
+  NotFoundException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { StatusCodes } from 'http-status-codes/build/cjs/status-codes';
-import { Response } from 'express';
 
 @Controller('user')
 export class UserController {
@@ -32,14 +32,10 @@ export class UserController {
   }
 
   @Get(':id')
-  async findOne(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Res({ passthrough: true }) response: Response,
-  ) {
+  async findOne(@Param('id', ParseUUIDPipe) id: string) {
     const maybeUser = await this.userService.findOne(id);
     if (maybeUser === null) {
-      response.status(StatusCodes.NOT_FOUND);
-      return;
+      throw new NotFoundException(`There is no user with id ${id}`);
     } else {
       return maybeUser;
     }
@@ -49,16 +45,15 @@ export class UserController {
   async update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateUserDto: UpdatePasswordDto,
-    @Res({ passthrough: true }) response: Response,
   ) {
     const maybeUpdateResult = await this.userService.update(id, updateUserDto);
 
     if (maybeUpdateResult === null) {
-      response.status(StatusCodes.NOT_FOUND);
-      return;
+      throw new NotFoundException(`There is no user with id ${id}`);
     } else if (maybeUpdateResult === 'wrong-password') {
-      response.status(StatusCodes.FORBIDDEN);
-      return;
+      throw new ForbiddenException(
+        `Wrong password old password ${updateUserDto.oldPassword}`,
+      );
     } else {
       return maybeUpdateResult;
     }
@@ -66,15 +61,11 @@ export class UserController {
 
   @Delete(':id')
   @HttpCode(StatusCodes.NO_CONTENT)
-  async remove(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Res({ passthrough: true }) response: Response,
-  ) {
+  async remove(@Param('id', ParseUUIDPipe) id: string) {
     const maybeUser = await this.userService.remove(id);
 
     if (maybeUser === null) {
-      response.status(StatusCodes.NOT_FOUND);
-      return;
+      throw new NotFoundException(`There is no user with id ${id}`);
     } else {
       return maybeUser;
     }

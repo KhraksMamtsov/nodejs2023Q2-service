@@ -7,14 +7,13 @@ import {
   Delete,
   HttpCode,
   ParseUUIDPipe,
-  Res,
   Put,
+  NotFoundException,
 } from '@nestjs/common';
 import { AlbumService } from './album.service';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { StatusCodes } from 'http-status-codes/build/cjs/status-codes';
-import { Response } from 'express';
-import { UpdateArtistDto } from '../artist/dto/update-artist.dto';
+import { UpdateAlbumDto } from './dto/update-album.dto';
 
 @Controller('album')
 export class AlbumController {
@@ -32,14 +31,10 @@ export class AlbumController {
   }
 
   @Get(':id')
-  async findOne(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Res({ passthrough: true }) response: Response,
-  ) {
+  async findOne(@Param('id', ParseUUIDPipe) id: string) {
     const maybeAlbum = await this.albumService.findOne(id);
     if (maybeAlbum === null) {
-      response.status(StatusCodes.NOT_FOUND);
-      return;
+      throw new NotFoundException(`There is no album with id ${id}`);
     } else {
       return maybeAlbum;
     }
@@ -48,14 +43,12 @@ export class AlbumController {
   @Put(':id')
   async update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateUserDto: UpdateArtistDto,
-    @Res({ passthrough: true }) response: Response,
+    @Body() updateAlbumDto: UpdateAlbumDto,
   ) {
-    const maybeAlbum = await this.albumService.update(id, updateUserDto);
+    const maybeAlbum = await this.albumService.update(id, updateAlbumDto);
 
     if (maybeAlbum === null) {
-      response.status(StatusCodes.NOT_FOUND);
-      return;
+      throw new NotFoundException(`There is no album with id ${id}`);
     } else {
       return maybeAlbum;
     }
@@ -63,15 +56,11 @@ export class AlbumController {
 
   @Delete(':id')
   @HttpCode(StatusCodes.NO_CONTENT)
-  async remove(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Res({ passthrough: true }) response: Response,
-  ) {
+  async remove(@Param('id', ParseUUIDPipe) id: string) {
     const maybeAlbum = await this.albumService.remove(id);
 
     if (maybeAlbum === null) {
-      response.status(StatusCodes.NOT_FOUND);
-      return;
+      throw new NotFoundException(`There is no album with id ${id}`);
     } else {
       return maybeAlbum;
     }
