@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsInt, IsOptional } from 'class-validator';
+import { IsNullable } from '../../utils/class-validator/isNullable';
 
 export class Track {
   @ApiProperty({
@@ -15,17 +16,15 @@ export class Track {
   @ApiProperty({
     format: 'uuid',
     nullable: true,
-    required: false,
   })
-  @IsOptional()
+  @IsNullable()
   readonly artistId: string | null;
 
   @ApiProperty({
     format: 'uuid',
     nullable: true,
-    required: false,
   })
-  @IsOptional()
+  @IsNullable()
   readonly albumId: string | null;
 
   @ApiProperty({

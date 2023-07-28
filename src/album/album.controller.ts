@@ -105,9 +105,9 @@ export class AlbumController {
   @ApiNotFoundResponse({
     description: 'Album was not found',
   })
-  @Put(':id')
+  @Put(':albumId')
   async update(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('albumId', ParseUUIDPipe) id: string,
     @Body() updateAlbumDto: UpdateAlbumDto,
   ) {
     const maybeAlbum = await this.albumService.update(id, updateAlbumDto);
@@ -134,9 +134,9 @@ export class AlbumController {
   @ApiNotFoundResponse({
     description: 'Album was not found',
   })
-  @Delete(':id')
+  @Delete(':albumId')
   @HttpCode(StatusCodes.NO_CONTENT)
-  async remove(@Param('id', ParseUUIDPipe) id: string) {
+  async remove(@Param('albumId', ParseUUIDPipe) id: string) {
     const maybeAlbum = await this.albumService.remove(id);
 
     if (maybeAlbum === null) {

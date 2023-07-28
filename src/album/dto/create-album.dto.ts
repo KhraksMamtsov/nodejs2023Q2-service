@@ -1,5 +1,6 @@
 import { IsInt, IsOptional, IsString, IsUUID } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { IsNullable } from '../../utils/class-validator/isNullable';
 
 export class CreateAlbumDto {
   @ApiProperty()
@@ -15,9 +16,8 @@ export class CreateAlbumDto {
   @ApiProperty({
     format: 'uuid',
     nullable: true,
-    required: false,
   })
   @IsUUID(4)
-  @IsOptional()
+  @IsNullable()
   readonly artistId: string | null;
 }
