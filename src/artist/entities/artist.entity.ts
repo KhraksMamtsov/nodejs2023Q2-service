@@ -1,6 +1,15 @@
+import { ApiProperty } from '@nestjs/swagger';
+
 export class Artist {
-  readonly id: string; // uuid v4
+  @ApiProperty({
+    format: 'uuid',
+  })
+  readonly id: string;
+
+  @ApiProperty()
   readonly name: string;
+
+  @ApiProperty()
   readonly grammy: boolean;
 
   constructor(args: Artist) {
