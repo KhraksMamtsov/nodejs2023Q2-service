@@ -6,10 +6,14 @@ export class Artist {
   })
   readonly id: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    example: 'Freddie Mercury',
+  })
   readonly name: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    example: false,
+  })
   readonly grammy: boolean;
 
   constructor(args: Artist) {

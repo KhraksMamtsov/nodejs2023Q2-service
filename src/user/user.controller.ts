@@ -39,7 +39,8 @@ export class UserController {
   })
   @ApiOkResponse({
     description: 'Successful operation',
-    type: [User],
+    isArray: true,
+    type: User,
   })
   @Get()
   findAll() {

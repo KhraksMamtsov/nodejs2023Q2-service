@@ -10,20 +10,38 @@ import {
 } from '@nestjs/common';
 import { FavoritesService } from './favorites.service';
 import { StatusCodes } from 'http-status-codes';
-import { ApiTags } from '@nestjs/swagger';
+import {
+  ApiOkResponse,
+  ApiOperation,
+  ApiParam,
+  ApiTags,
+} from '@nestjs/swagger';
+import { Favorite } from './entities/favorite.entity';
 
 @ApiTags('Favorites')
 @Controller('favs')
 export class FavoritesController {
   constructor(private readonly favoritesService: FavoritesService) {}
 
+  @ApiOperation({
+    description: 'Gets all favorites movies, tracks and books',
+    summary: 'Gets all favorites',
+  })
+  @ApiOkResponse({
+    description: 'Successful operation',
+    type: Favorite,
+  })
   @Get()
   findAll() {
     return this.favoritesService.get();
   }
 
-  @Post('track/:id')
-  async addTrack(@Param('id', ParseUUIDPipe) id: string) {
+  @ApiParam({
+    name: 'trackId',
+    format: 'uuid',
+  })
+  @Post('track/:trackId')
+  async addTrack(@Param('trackId', ParseUUIDPipe) id: string) {
     const maybeResult = await this.favoritesService.addTrack(id);
 
     if (maybeResult === null) {
@@ -32,15 +50,23 @@ export class FavoritesController {
     return maybeResult;
   }
 
-  @Delete('track/:id')
+  @ApiParam({
+    name: 'trackId',
+    format: 'uuid',
+  })
+  @Delete('track/:trackId')
   @HttpCode(StatusCodes.NO_CONTENT)
-  async removeTrack(@Param('id', ParseUUIDPipe) id: string) {
+  async removeTrack(@Param('trackId', ParseUUIDPipe) id: string) {
     const deleteResult = await this.favoritesService.removeTrack(id);
     return deleteResult;
   }
 
-  @Post('artist/:id')
-  async addArtist(@Param('id', ParseUUIDPipe) id: string) {
+  @ApiParam({
+    name: 'artistId',
+    format: 'uuid',
+  })
+  @Post('artist/:artistId')
+  async addArtist(@Param('artistId', ParseUUIDPipe) id: string) {
     const maybeResult = await this.favoritesService.addArtist(id);
 
     if (maybeResult === null) {
@@ -51,14 +77,22 @@ export class FavoritesController {
     return maybeResult;
   }
 
-  @Delete('artist/:id')
+  @ApiParam({
+    name: 'artistId',
+    format: 'uuid',
+  })
+  @Delete('artist/:artistId')
   @HttpCode(StatusCodes.NO_CONTENT)
-  removeArtist(@Param('id', ParseUUIDPipe) id: string) {
+  removeArtist(@Param('artistId', ParseUUIDPipe) id: string) {
     return this.favoritesService.removeArtist(id);
   }
 
-  @Post('album/:id')
-  async addAlbum(@Param('id', ParseUUIDPipe) id: string) {
+  @ApiParam({
+    name: 'albumId',
+    format: 'uuid',
+  })
+  @Post('album/:albumId')
+  async addAlbum(@Param('albumId', ParseUUIDPipe) id: string) {
     const maybeResult = await this.favoritesService.addAlbum(id);
 
     if (maybeResult === null) {
@@ -67,9 +101,13 @@ export class FavoritesController {
     return maybeResult;
   }
 
-  @Delete('album/:id')
+  @ApiParam({
+    name: 'albumId',
+    format: 'uuid',
+  })
+  @Delete('album/:albumId')
   @HttpCode(StatusCodes.NO_CONTENT)
-  removeAlbum(@Param('id', ParseUUIDPipe) id: string) {
+  removeAlbum(@Param('albumId', ParseUUIDPipe) id: string) {
     return this.favoritesService.removeAlbum(id);
   }
 }
