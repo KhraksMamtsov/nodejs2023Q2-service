@@ -1,8 +1,30 @@
+import { ApiProperty } from '@nestjs/swagger';
+import { IsOptional } from 'class-validator';
+
 export class Album {
-  readonly id: string; // uuid v4
+  @ApiProperty({
+    format: 'uuid',
+  })
+  readonly id: string;
+
+  @ApiProperty({
+    example: 'Innuendo',
+  })
   readonly name: string;
+
+  @ApiProperty({
+    type: 'integer',
+    example: 1991,
+  })
   readonly year: number;
-  readonly artistId: string | null; // refers to Artist
+
+  @ApiProperty({
+    format: 'uuid',
+    nullable: true,
+    required: false,
+  })
+  @IsOptional()
+  readonly artistId: string | null;
 
   constructor(args: Album) {
     Object.assign(this, args);
