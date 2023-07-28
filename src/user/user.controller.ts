@@ -23,6 +23,7 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
 import { User } from './entities/user.entity';
@@ -66,6 +67,7 @@ export class UserController {
     summary: 'Get single user by id',
     description: 'Get single user by id',
   })
+  @ApiParam({ name: 'userId', format: 'uuid' })
   @ApiOkResponse({
     description: 'Successful operation',
     type: User,
@@ -90,6 +92,7 @@ export class UserController {
     summary: "Update a user's password",
     description: "Updates a user's password by ID",
   })
+  @ApiParam({ name: 'userId', format: 'uuid' })
   @ApiOkResponse({
     description: 'The user has been updated',
     type: User,
@@ -125,6 +128,7 @@ export class UserController {
     summary: 'Delete user',
     description: 'Deletes user by ID',
   })
+  @ApiParam({ name: 'userId', format: 'uuid' })
   @ApiNoContentResponse({
     description: 'The user has been deleted',
     type: User,

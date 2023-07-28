@@ -21,6 +21,7 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiParam,
   ApiProperty,
   ApiTags,
 } from '@nestjs/swagger';
@@ -66,6 +67,7 @@ export class TrackController {
     summary: 'Get single track by id',
     description: 'Get single track by id',
   })
+  @ApiParam({ name: 'trackId', format: 'uuid' })
   @ApiOkResponse({
     description: 'Successful operation',
     type: Track,
@@ -87,6 +89,7 @@ export class TrackController {
     summary: 'Update track information',
     description: 'Update library track information by UUID',
   })
+  @ApiParam({ name: 'trackId', format: 'uuid' })
   @ApiOkResponse({
     description: 'The track has been updated',
     type: Track,
@@ -112,6 +115,7 @@ export class TrackController {
     summary: 'Delete track',
     description: 'Delete track from library',
   })
+  @ApiParam({ name: 'trackId', format: 'uuid' })
   @ApiNoContentResponse({
     description: 'Deleted successfully',
     type: Track,
