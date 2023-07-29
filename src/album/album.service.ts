@@ -5,7 +5,6 @@ import { Album } from './entities/album.entity';
 import { UpdateAlbumDto } from './dto/update-album.dto';
 import { TrackService } from '../track/track.service';
 import { FavoritesService } from '../favorites/favorites.service';
-import { Track } from '../track/entities/track.entity';
 
 @Injectable()
 export class AlbumService {

@@ -6,7 +6,6 @@ import { Artist } from './entities/artist.entity';
 import { TrackService } from '../track/track.service';
 import { AlbumService } from '../album/album.service';
 import { FavoritesService } from '../favorites/favorites.service';
-import { Album } from '../album/entities/album.entity';
 
 @Injectable()
 export class ArtistService {
