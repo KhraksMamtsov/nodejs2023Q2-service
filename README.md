@@ -7,7 +7,7 @@
 5. Score: 760 / 760
 
 ## NOTES:
-- You can set `PORT` in `.env` file (see .env.example)
+- You can set `PORT` in `.env` file (look at `.env.example`)
 - You can visit swagger-page http://localhost:4000/doc
 - And take always get actual OpenApi spec here http://localhost:4000/doc-yaml
 
