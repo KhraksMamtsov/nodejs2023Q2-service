@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNullable } from '../../utils/class-validator/isNullable';
 
 export class Album {
   @ApiProperty({
