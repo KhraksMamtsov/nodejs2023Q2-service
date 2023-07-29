@@ -74,7 +74,7 @@ export class UserController {
     type: User,
   })
   @ApiBadRequestResponse({
-    description: 'userId is invalid (not uuid)',
+    description: 'User id is invalid (not uuid)',
   })
   @ApiNotFoundResponse({
     description: 'User not found',
@@ -99,7 +99,7 @@ export class UserController {
     type: User,
   })
   @ApiBadRequestResponse({
-    description: 'userId is invalid (not uuid)',
+    description: 'User id is invalid (not uuid)',
   })
   @ApiNotFoundResponse({
     description: 'User not found',
