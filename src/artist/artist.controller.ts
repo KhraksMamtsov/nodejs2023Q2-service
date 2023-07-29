@@ -117,7 +117,6 @@ export class ArtistController {
   @ApiParam({ name: 'artistId', format: 'uuid' })
   @ApiNoContentResponse({
     description: 'Deleted successfully',
-    type: Artist,
   })
   @ApiBadRequestResponse({
     description: 'Artist id is invalid (not uuid)',
@@ -132,8 +131,6 @@ export class ArtistController {
 
     if (maybeArtist === null) {
       throw new NotFoundException(`There is no artist with id ${id}`);
-    } else {
-      return maybeArtist;
     }
   }
 }

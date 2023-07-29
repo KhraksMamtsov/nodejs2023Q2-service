@@ -118,7 +118,6 @@ export class TrackController {
   @ApiParam({ name: 'trackId', format: 'uuid' })
   @ApiNoContentResponse({
     description: 'Deleted successfully',
-    type: Track,
   })
   @ApiBadRequestResponse({
     description: 'Track id is invalid (not uuid)',
@@ -133,8 +132,6 @@ export class TrackController {
 
     if (maybeTrack === null) {
       throw new NotFoundException(`There is no track with id ${id}`);
-    } else {
-      return maybeTrack;
     }
   }
 }

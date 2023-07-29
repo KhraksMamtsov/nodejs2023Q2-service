@@ -5,6 +5,7 @@ import { Album } from './entities/album.entity';
 import { UpdateAlbumDto } from './dto/update-album.dto';
 import { TrackService } from '../track/track.service';
 import { FavoritesService } from '../favorites/favorites.service';
+import { Track } from '../track/entities/track.entity';
 
 @Injectable()
 export class AlbumService {
@@ -40,6 +41,18 @@ export class AlbumService {
   async findAll() {
     const allAlbums = await this.database.findAll<Album>('album');
     return allAlbums.map((x) => new Album(x));
+  }
+
+  async findWithIds(ids: string[]) {
+    const updatedTrack = await this.database.findWhere<Album>('album', (x) =>
+      ids.includes(x.id),
+    );
+
+    if (updatedTrack === null) {
+      return null;
+    } else {
+      return updatedTrack.map((x) => new Album(x));
+    }
   }
 
   async update(id: string, updateAlbumDto: UpdateAlbumDto) {

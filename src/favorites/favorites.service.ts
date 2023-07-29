@@ -5,6 +5,7 @@ import { TrackService } from '../track/track.service';
 import { AlbumService } from '../album/album.service';
 import { ArtistService } from '../artist/artist.service';
 import { Favorite } from './entities/favorite.entity';
+import { FavoriteDto } from './dto/favorite.dto';
 
 @Injectable()
 export class FavoritesService {
@@ -22,7 +23,7 @@ export class FavoritesService {
     private readonly artistService: ArtistService,
   ) {}
 
-  async get() {
+  private async getEntity() {
     const maybeFavorites = await this.database.findOne<Favorite>(
       'favorites',
       FavoritesService.COMMON_ID,
@@ -31,9 +32,9 @@ export class FavoritesService {
       return this.database.create<Favorite>(
         'favorites',
         {
-          albums: [],
-          artists: [],
-          tracks: [],
+          albumsIds: [],
+          artistsIds: [],
+          tracksIds: [],
         },
         FavoritesService.COMMON_ID,
       );
@@ -42,11 +43,31 @@ export class FavoritesService {
     }
   }
 
-  async addTrack(trackId: string) {
-    const favorites = await this.get();
+  async getDto() {
+    const favorite = await this.getEntity();
 
-    if (favorites.tracks.some((x) => x.id === trackId)) {
-      return favorites;
+    return this.build(favorite);
+  }
+
+  private async build(favorite: Favorite) {
+    const [tracks, albums, artists] = await Promise.all([
+      this.trackService.findWithIds(favorite.tracksIds),
+      this.albumService.findWithIds(favorite.albumsIds),
+      this.artistService.findWithIds(favorite.artistsIds),
+    ]);
+
+    return new FavoriteDto({
+      albums,
+      artists,
+      tracks,
+    });
+  }
+
+  async addTrack(trackId: string) {
+    const favorite = await this.getEntity();
+
+    if (favorite.tracksIds.includes(trackId)) {
+      return this.build(favorite);
     }
 
     const track = await this.trackService.findOne(trackId);
@@ -54,20 +75,22 @@ export class FavoritesService {
     if (track === null) {
       return null;
     } else {
-      favorites.tracks.push(track);
-      return await this.database.update<Favorite>(
+      favorite.tracksIds.push(track.id);
+      const updatedFavorites = await this.database.update<Favorite>(
         'favorites',
-        favorites.id,
-        favorites,
+        favorite.id,
+        favorite,
       );
+
+      return this.build(updatedFavorites);
     }
   }
 
   async addArtist(artistId: string) {
-    const favorites = await this.get();
+    const favorite = await this.getEntity();
 
-    if (favorites.artists.some((x) => x.id === artistId)) {
-      return favorites;
+    if (favorite.artistsIds.includes(artistId)) {
+      return this.build(favorite);
     }
 
     const artist = await this.artistService.findOne(artistId);
@@ -75,20 +98,21 @@ export class FavoritesService {
     if (artist === null) {
       return null;
     } else {
-      favorites.artists.push(artist);
-      return await this.database.update<Favorite>(
+      favorite.artistsIds.push(artist.id);
+      const updatedFavorite = await this.database.update<Favorite>(
         'favorites',
-        favorites.id,
-        favorites,
+        favorite.id,
+        favorite,
       );
+      return this.build(updatedFavorite);
     }
   }
 
   async addAlbum(albumId: string) {
-    const favorites = await this.get();
+    const favorite = await this.getEntity();
 
-    if (favorites.albums.some((x) => x.id === albumId)) {
-      return favorites;
+    if (favorite.albumsIds.includes(albumId)) {
+      return this.build(favorite);
     }
 
     const album = await this.albumService.findOne(albumId);
@@ -96,52 +120,68 @@ export class FavoritesService {
     if (album === null) {
       return null;
     } else {
-      favorites.albums.push(album);
-      return await this.database.update<Favorite>(
+      favorite.albumsIds.push(album.id);
+      const updatedFavorite = await this.database.update<Favorite>(
         'favorites',
-        favorites.id,
-        favorites,
+        favorite.id,
+        favorite,
       );
+      return this.build(updatedFavorite);
     }
   }
 
   async removeAlbum(albumId: string) {
-    const favorites = await this.get();
+    const favorites = await this.getEntity();
 
-    if (favorites.albums.some((x) => x.id === albumId)) {
-      const { albums, ...rest } = favorites;
-      return await this.database.update<Favorite>('favorites', favorites.id, {
-        ...rest,
-        albums: albums.filter((x) => x.id !== albumId),
-      });
+    if (favorites.albumsIds.includes(albumId)) {
+      const { albumsIds, ...rest } = favorites;
+      const updatedFavorite = await this.database.update<Favorite>(
+        'favorites',
+        favorites.id,
+        {
+          ...rest,
+          albumsIds: albumsIds.filter((id) => id !== albumId),
+        },
+      );
+      return this.build(updatedFavorite);
     } else {
-      return favorites;
+      return null;
     }
   }
   async removeArtist(artistId: string) {
-    const favorites = await this.get();
+    const favorite = await this.getEntity();
 
-    if (favorites.artists.some((x) => x.id === artistId)) {
-      const { artists, ...rest } = favorites;
-      return await this.database.update<Favorite>('favorites', favorites.id, {
-        ...rest,
-        artists: artists.filter((x) => x.id !== artistId),
-      });
+    if (favorite.artistsIds.includes(artistId)) {
+      const { artistsIds, ...rest } = favorite;
+      const updatedFavorite = await this.database.update<Favorite>(
+        'favorites',
+        favorite.id,
+        {
+          ...rest,
+          artistsIds: artistsIds.filter((id) => id !== artistId),
+        },
+      );
+      return this.build(updatedFavorite);
     } else {
-      return favorites;
+      return null;
     }
   }
   async removeTrack(trackId: string) {
-    const favorites = await this.get();
+    const favorite = await this.getEntity();
 
-    if (favorites.tracks.some((x) => x.id === trackId)) {
-      const { tracks, ...rest } = favorites;
-      return await this.database.update<Favorite>('favorites', favorites.id, {
-        ...rest,
-        tracks: tracks.filter((x) => x.id !== trackId),
-      });
+    if (favorite.tracksIds.includes(trackId)) {
+      const { tracksIds, ...rest } = favorite;
+      const updatedFavorite = await this.database.update<Favorite>(
+        'favorites',
+        favorite.id,
+        {
+          ...rest,
+          tracksIds: tracksIds.filter((id) => id !== trackId),
+        },
+      );
+      return this.build(updatedFavorite);
     } else {
-      return favorites;
+      return null;
     }
   }
 }

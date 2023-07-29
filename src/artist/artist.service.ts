@@ -6,6 +6,7 @@ import { Artist } from './entities/artist.entity';
 import { TrackService } from '../track/track.service';
 import { AlbumService } from '../album/album.service';
 import { FavoritesService } from '../favorites/favorites.service';
+import { Album } from '../album/entities/album.entity';
 
 @Injectable()
 export class ArtistService {
@@ -33,6 +34,18 @@ export class ArtistService {
   async findAll() {
     const allArtists = await this.database.findAll<Artist>('artist');
     return allArtists.map((x) => new Artist(x));
+  }
+
+  async findWithIds(ids: string[]) {
+    const updatedTrack = await this.database.findWhere<Artist>('artist', (x) =>
+      ids.includes(x.id),
+    );
+
+    if (updatedTrack === null) {
+      return null;
+    } else {
+      return updatedTrack.map((x) => new Artist(x));
+    }
   }
 
   async findOne(id: string) {

@@ -126,7 +126,6 @@ export class AlbumController {
   @ApiParam({ name: 'albumId', format: 'uuid' })
   @ApiNoContentResponse({
     description: 'Deleted successfully',
-    type: Album,
   })
   @ApiBadRequestResponse({
     description: 'Album id is invalid (not uuid)',
@@ -141,8 +140,6 @@ export class AlbumController {
 
     if (maybeAlbum === null) {
       throw new NotFoundException(`There is no album with id ${id}`);
-    } else {
-      return maybeAlbum;
     }
   }
 }

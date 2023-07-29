@@ -37,6 +37,18 @@ export class TrackService {
     }
   }
 
+  async findWithIds(ids: string[]) {
+    const updatedTrack = await this.database.findWhere<Track>('track', (x) =>
+      ids.includes(x.id),
+    );
+
+    if (updatedTrack === null) {
+      return null;
+    } else {
+      return updatedTrack.map((x) => new Track(x));
+    }
+  }
+
   async update(id: string, updateTrackDto: UpdateTrackDto) {
     const updatedTrack = await this.database.update<Track>(
       'track',

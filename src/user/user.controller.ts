@@ -132,10 +132,12 @@ export class UserController {
   @ApiParam({ name: 'userId', format: 'uuid' })
   @ApiNoContentResponse({
     description: 'The user has been deleted',
-    type: User,
   })
   @ApiNotFoundResponse({
     description: 'User not found',
+  })
+  @ApiBadRequestResponse({
+    description: 'User id is invalid (not uuid)',
   })
   @Delete(':userId')
   @HttpCode(StatusCodes.NO_CONTENT)
@@ -144,8 +146,6 @@ export class UserController {
 
     if (maybeUser === null) {
       throw new NotFoundException(`There is no user with id ${id}`);
-    } else {
-      return maybeUser;
     }
   }
 }
