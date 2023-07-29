@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional } from 'class-validator';
 import { IsNullable } from '../../utils/class-validator/isNullable';
 
 export class Album {
@@ -23,7 +22,6 @@ export class Album {
     format: 'uuid',
     nullable: true,
   })
-  @IsNullable()
   readonly artistId: string | null;
 
   constructor(args: Album) {
