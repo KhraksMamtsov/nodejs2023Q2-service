@@ -32,9 +32,9 @@ export class FavoritesService {
       return this.database.create<Favorite>(
         'favorites',
         {
-          albumsIds: [],
-          artistsIds: [],
-          tracksIds: [],
+          albums: [],
+          artists: [],
+          tracks: [],
         },
         FavoritesService.COMMON_ID,
       );
@@ -51,9 +51,9 @@ export class FavoritesService {
 
   private async build(favorite: Favorite) {
     const [tracks, albums, artists] = await Promise.all([
-      this.trackService.findWithIds(favorite.tracksIds),
-      this.albumService.findWithIds(favorite.albumsIds),
-      this.artistService.findWithIds(favorite.artistsIds),
+      this.trackService.findWithIds(favorite.tracks),
+      this.albumService.findWithIds(favorite.albums),
+      this.artistService.findWithIds(favorite.artists),
     ]);
 
     return new FavoriteDto({
@@ -66,7 +66,7 @@ export class FavoritesService {
   async addTrack(trackId: string) {
     const favorite = await this.getEntity();
 
-    if (favorite.tracksIds.includes(trackId)) {
+    if (favorite.tracks.includes(trackId)) {
       return this.build(favorite);
     }
 
@@ -75,7 +75,7 @@ export class FavoritesService {
     if (track === null) {
       return null;
     } else {
-      favorite.tracksIds.push(track.id);
+      favorite.tracks.push(track.id);
       const updatedFavorites = await this.database.update<Favorite>(
         'favorites',
         favorite.id,
@@ -89,7 +89,7 @@ export class FavoritesService {
   async addArtist(artistId: string) {
     const favorite = await this.getEntity();
 
-    if (favorite.artistsIds.includes(artistId)) {
+    if (favorite.artists.includes(artistId)) {
       return this.build(favorite);
     }
 
@@ -98,7 +98,7 @@ export class FavoritesService {
     if (artist === null) {
       return null;
     } else {
-      favorite.artistsIds.push(artist.id);
+      favorite.artists.push(artist.id);
       const updatedFavorite = await this.database.update<Favorite>(
         'favorites',
         favorite.id,
@@ -111,7 +111,7 @@ export class FavoritesService {
   async addAlbum(albumId: string) {
     const favorite = await this.getEntity();
 
-    if (favorite.albumsIds.includes(albumId)) {
+    if (favorite.albums.includes(albumId)) {
       return this.build(favorite);
     }
 
@@ -120,7 +120,7 @@ export class FavoritesService {
     if (album === null) {
       return null;
     } else {
-      favorite.albumsIds.push(album.id);
+      favorite.albums.push(album.id);
       const updatedFavorite = await this.database.update<Favorite>(
         'favorites',
         favorite.id,
@@ -133,14 +133,14 @@ export class FavoritesService {
   async removeAlbum(albumId: string) {
     const favorites = await this.getEntity();
 
-    if (favorites.albumsIds.includes(albumId)) {
-      const { albumsIds, ...rest } = favorites;
+    if (favorites.albums.includes(albumId)) {
+      const { albums, ...rest } = favorites;
       const updatedFavorite = await this.database.update<Favorite>(
         'favorites',
         favorites.id,
         {
           ...rest,
-          albumsIds: albumsIds.filter((id) => id !== albumId),
+          albums: albums.filter((id) => id !== albumId),
         },
       );
       return this.build(updatedFavorite);
@@ -151,14 +151,14 @@ export class FavoritesService {
   async removeArtist(artistId: string) {
     const favorite = await this.getEntity();
 
-    if (favorite.artistsIds.includes(artistId)) {
-      const { artistsIds, ...rest } = favorite;
+    if (favorite.artists.includes(artistId)) {
+      const { artists, ...rest } = favorite;
       const updatedFavorite = await this.database.update<Favorite>(
         'favorites',
         favorite.id,
         {
           ...rest,
-          artistsIds: artistsIds.filter((id) => id !== artistId),
+          artists: artists.filter((id) => id !== artistId),
         },
       );
       return this.build(updatedFavorite);
@@ -169,14 +169,14 @@ export class FavoritesService {
   async removeTrack(trackId: string) {
     const favorite = await this.getEntity();
 
-    if (favorite.tracksIds.includes(trackId)) {
-      const { tracksIds, ...rest } = favorite;
+    if (favorite.tracks.includes(trackId)) {
+      const { tracks, ...rest } = favorite;
       const updatedFavorite = await this.database.update<Favorite>(
         'favorites',
         favorite.id,
         {
           ...rest,
-          tracksIds: tracksIds.filter((id) => id !== trackId),
+          tracks: tracks.filter((id) => id !== trackId),
         },
       );
       return this.build(updatedFavorite);

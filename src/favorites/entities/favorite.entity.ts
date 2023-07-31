@@ -1,6 +1,6 @@
 export class Favorite {
   readonly id: string;
-  readonly artistsIds: Array<string>;
-  readonly albumsIds: Array<string>;
-  readonly tracksIds: Array<string>;
+  readonly artists: Array<string>;
+  readonly albums: Array<string>;
+  readonly tracks: Array<string>;
 }
