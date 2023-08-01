@@ -8,27 +8,40 @@ import { User } from './entities/user.entity';
 export class UserService {
   constructor(private readonly database: DatabaseService) {}
   async create(createUserDto: CreateUserDto) {
-    const createdUser = await this.database.create<User>('user', {
+    const createdUser = await this.database.create('user', {
       ...createUserDto,
       version: 1,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
     });
 
-    return new User(createdUser);
+    return new User({
+      ...createdUser,
+      updatedAt: createdUser.updatedAt.getTime(),
+      createdAt: createdUser.createdAt.getTime(),
+    });
   }
 
   async findAll() {
-    const allUsers = await this.database.findAll<User>('user');
-    return allUsers.map((x) => new User(x));
+    const allUsers = await this.database.findAll('user');
+    return allUsers.map(
+      (x) =>
+        new User({
+          ...x,
+          updatedAt: x.updatedAt.getTime(),
+          createdAt: x.createdAt.getTime(),
+        }),
+    );
   }
 
   async findOne(id: string) {
-    const maybeUser = await this.database.findOne<User>('user', id);
+    const maybeUser = await this.database.findOne('user', id);
     if (maybeUser === null) {
       return null;
     } else {
-      return new User(maybeUser);
+      return new User({
+        ...maybeUser,
+        updatedAt: maybeUser.updatedAt.getTime(),
+        createdAt: maybeUser.createdAt.getTime(),
+      });
     }
   }
 
@@ -40,26 +53,33 @@ export class UserService {
     } else if (entity.password !== updatePasswordDto.oldPassword) {
       return 'wrong-password';
     } else {
-      const updatedUser = await this.database.update<User>('user', id, {
-        updatedAt: Date.now(),
+      const updatedUser = await this.database.update('user', id, {
         version: entity.version + 1,
         password: updatePasswordDto.newPassword,
       });
       if (updatedUser === null) {
         return null;
       } else {
-        return new User(updatedUser);
+        return new User({
+          ...updatedUser,
+          updatedAt: updatedUser.updatedAt.getTime(),
+          createdAt: updatedUser.createdAt.getTime(),
+        });
       }
     }
   }
 
   async remove(id: string) {
-    const deletedUser = await this.database.delete<User>('user', id);
+    const deletedUser = await this.database.delete('user', id);
 
     if (deletedUser === null) {
       return null;
     } else {
-      return new User(deletedUser);
+      return new User({
+        ...deletedUser,
+        updatedAt: deletedUser.updatedAt.getTime(),
+        createdAt: deletedUser.createdAt.getTime(),
+      });
     }
   }
 }

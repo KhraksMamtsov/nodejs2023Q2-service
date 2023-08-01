@@ -1,91 +1,86 @@
-import { Injectable } from '@nestjs/common';
-import * as crypto from 'node:crypto';
+import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { PrismaClient } from '@prisma/client';
 
 type TableName = 'user' | 'artist' | 'album' | 'track' | 'favorites';
-type EntityType = { readonly id: string };
 
 @Injectable()
-export class DatabaseService {
-  private readonly db: Readonly<Record<TableName, Map<string, EntityType>>> = {
-    track: new Map(),
-    user: new Map(),
-    artist: new Map(),
-    favorites: new Map(),
-    album: new Map(),
-  };
-
-  async exists(tableName: TableName, id: string): Promise<boolean> {
-    return this.db[tableName].has(id);
+export class DatabaseService implements OnModuleInit, OnModuleDestroy {
+  private _prismaClient: PrismaClient = new PrismaClient();
+  onModuleInit() {
+    return this._prismaClient.$connect();
+  }
+  onModuleDestroy() {
+    return this._prismaClient.$disconnect();
   }
 
-  async findWhere<T extends EntityType>(
-    tableName: TableName,
-    predicate: (entity: T) => boolean,
-  ): Promise<ReadonlyArray<T>> {
-    return (
-      [...this.db[tableName].values()] as unknown as ReadonlyArray<T>
-    ).filter(predicate);
+  findWhere<T extends TableName>(
+    tableName: T,
+    where: Parameters<PrismaClient[T]['findMany']>[0]['where'],
+  ): ReturnType<PrismaClient[T]['findMany']> {
+    // @ts-expect-error : Each member of the union type has signatures, but none of those signatures are compatible with each other.
+    return this._prismaClient[tableName].findMany({
+      where,
+    });
   }
 
-  async findAll<T extends EntityType>(
-    tableName: TableName,
-  ): Promise<ReadonlyArray<T>> {
-    return [...this.db[tableName].values()] as unknown as ReadonlyArray<T>;
+  findAll<T extends TableName>(
+    tableName: T,
+  ): ReturnType<PrismaClient[T]['findMany']> {
+    // @ts-expect-error : Each member of the union type has signatures, but none of those signatures are compatible with each other.
+    return this._prismaClient[tableName].findMany();
   }
 
-  async create<X>(
-    tableName: TableName,
-    entityArgs: Omit<X, keyof EntityType>,
+  create<T extends TableName>(
+    tableName: T,
+    data: Omit<Parameters<PrismaClient[T]['create']>[0]['data'], 'id'>,
     id?: string,
-  ): Promise<X & EntityType> {
-    const _id = id ?? crypto.randomUUID();
-    const newEntity = { id: _id, ...entityArgs };
-
-    this.db[tableName].set(_id, newEntity);
-
-    return newEntity as X & EntityType;
+  ): ReturnType<PrismaClient[T]['create']> {
+    // @ts-expect-error : Each member of the union type has signatures, but none of those signatures are compatible with each other.
+    return this._prismaClient[tableName].create({
+      data: {
+        ...data,
+        id,
+      },
+    });
   }
 
-  async findOne<X extends EntityType>(
-    tableName: TableName,
+  findOne<T extends TableName>(
+    tableName: T,
     id: string,
-  ): Promise<X | null> {
-    return (this.db[tableName].get(id) as X | undefined) ?? null;
+  ): ReturnType<PrismaClient[T]['findUnique']> {
+    // @ts-expect-error : Each member of the union type has signatures, but none of those signatures are compatible with each other.
+    return this._prismaClient[tableName].findUnique({
+      where: { id },
+    });
   }
 
-  async delete<X>(
-    tableName: TableName,
+  async delete<T extends TableName>(
+    tableName: T,
     id: string,
-  ): Promise<(X & EntityType) | null> {
-    const entity = await this.findOne(tableName, id);
-
-    if (entity === null) {
+  ): Promise<Awaited<ReturnType<PrismaClient[T]['delete']>> | null> {
+    try {
+      // @ts-expect-error : Each member of the union type has signatures, but none of those signatures are compatible with each other.
+      return await this._prismaClient[tableName].delete({
+        where: { id },
+      });
+    } catch {
       return null;
-    } else {
-      const deleteResult = this.db[tableName].delete(id);
-      if (deleteResult) {
-        return entity as X & EntityType;
-      } else {
-        return null;
-      }
     }
   }
 
-  async update<X>(
-    tableName: TableName,
+  async update<T extends TableName>(
+    tableName: T,
     id: string,
-    partial: Partial<X>,
-  ): Promise<(X & EntityType) | null> {
-    const entity = await this.findOne(tableName, id);
-
-    if (entity === null) {
+    data: Parameters<PrismaClient[T]['update']>[0]['data'],
+  ): Promise<null | Awaited<ReturnType<PrismaClient[T]['update']>>> {
+    try {
+      // @ts-expect-error : Each member of the union type has signatures, but none of those signatures are compatible with each other.
+      return await this._prismaClient[tableName].update({
+        where: { id },
+        data,
+      });
+    } catch {
       return null;
-    } else {
-      const newEntity = { ...entity, ...partial };
-
-      this.db[tableName].set(id, newEntity);
-
-      return newEntity as X & EntityType;
     }
   }
 }

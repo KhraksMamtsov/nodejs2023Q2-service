@@ -22,23 +22,20 @@ export class ArtistService {
     private readonly favoritesService: FavoritesService,
   ) {}
   async create(createArtistDto: CreateArtistDto) {
-    const createdArtist = await this.database.create<Artist>(
-      'artist',
-      createArtistDto,
-    );
+    const createdArtist = await this.database.create('artist', createArtistDto);
 
     return new Artist(createdArtist);
   }
 
   async findAll() {
-    const allArtists = await this.database.findAll<Artist>('artist');
+    const allArtists = await this.database.findAll('artist');
     return allArtists.map((x) => new Artist(x));
   }
 
   async findWithIds(ids: string[]) {
-    const updatedTrack = await this.database.findWhere<Artist>('artist', (x) =>
-      ids.includes(x.id),
-    );
+    const updatedTrack = await this.database.findWhere('artist', {
+      id: { in: ids },
+    });
 
     if (updatedTrack === null) {
       return null;
@@ -48,17 +45,17 @@ export class ArtistService {
   }
 
   async findOne(id: string) {
-    const updatedArtist = await this.database.findOne<Artist>('artist', id);
+    const artist = await this.database.findOne('artist', id);
 
-    if (updatedArtist === null) {
+    if (artist === null) {
       return null;
     } else {
-      return new Artist(updatedArtist);
+      return new Artist(artist);
     }
   }
 
   async update(id: string, updateArtistDto: UpdateArtistDto) {
-    const updatedArtist = await this.database.update<Artist>(
+    const updatedArtist = await this.database.update(
       'artist',
       id,
       updateArtistDto,
@@ -72,7 +69,7 @@ export class ArtistService {
   }
 
   async remove(id: string) {
-    const deletedArtist = await this.database.delete<Artist>('artist', id);
+    const deletedArtist = await this.database.delete('artist', id);
 
     if (deletedArtist === null) {
       return null;

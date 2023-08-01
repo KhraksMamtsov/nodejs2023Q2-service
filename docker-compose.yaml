@@ -9,6 +9,9 @@ services:
     restart: always
     environment:
       PORT: ${PORT}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
   database:
     build: ./database/
     ports:

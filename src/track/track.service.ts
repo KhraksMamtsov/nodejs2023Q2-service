@@ -14,21 +14,18 @@ export class TrackService {
     private readonly favoritesService: FavoritesService,
   ) {}
   async create(createTrackDto: CreateTrackDto) {
-    const createdTrack = await this.database.create<Track>(
-      'track',
-      createTrackDto,
-    );
+    const createdTrack = await this.database.create('track', createTrackDto);
 
     return new Track(createdTrack);
   }
 
   async findAll() {
-    const allTracks = await this.database.findAll<Track>('track');
+    const allTracks = await this.database.findAll('track');
     return allTracks.map((x) => new Track(x));
   }
 
   async findOne(id: string) {
-    const updatedTrack = await this.database.findOne<Track>('track', id);
+    const updatedTrack = await this.database.findOne('track', id);
 
     if (updatedTrack === null) {
       return null;
@@ -38,9 +35,11 @@ export class TrackService {
   }
 
   async findWithIds(ids: string[]) {
-    const updatedTrack = await this.database.findWhere<Track>('track', (x) =>
-      ids.includes(x.id),
-    );
+    const updatedTrack = await this.database.findWhere('track', {
+      id: {
+        in: ids,
+      },
+    });
 
     if (updatedTrack === null) {
       return null;
@@ -50,7 +49,7 @@ export class TrackService {
   }
 
   async update(id: string, updateTrackDto: UpdateTrackDto) {
-    const updatedTrack = await this.database.update<Track>(
+    const updatedTrack = await this.database.update(
       'track',
       id,
       updateTrackDto,
@@ -64,7 +63,7 @@ export class TrackService {
   }
 
   async remove(id: string) {
-    const deletedTrack = await this.database.delete<Track>('track', id);
+    const deletedTrack = await this.database.delete('track', id);
 
     if (deletedTrack === null) {
       return null;
@@ -75,10 +74,9 @@ export class TrackService {
   }
 
   async clearArtist(artistId: string) {
-    const tracksWithAuthor = await this.database.findWhere<Track>(
-      'track',
-      (x) => x.artistId === artistId,
-    );
+    const tracksWithAuthor = await this.database.findWhere('track', {
+      artistId,
+    });
 
     return Promise.all(
       tracksWithAuthor.map((x) =>
@@ -90,10 +88,7 @@ export class TrackService {
   }
 
   async clearAlbum(albumId: string) {
-    const tracksWithAlbum = await this.database.findWhere<Track>(
-      'track',
-      (x) => x.albumId === albumId,
-    );
+    const tracksWithAlbum = await this.database.findWhere('track', { albumId });
 
     return Promise.all(
       tracksWithAlbum.map((x) =>

@@ -24,12 +24,12 @@ export class FavoritesService {
   ) {}
 
   private async getEntity() {
-    const maybeFavorites = await this.database.findOne<Favorite>(
+    const maybeFavorites = await this.database.findOne(
       'favorites',
       FavoritesService.COMMON_ID,
     );
     if (maybeFavorites === null) {
-      return this.database.create<Favorite>(
+      return this.database.create(
         'favorites',
         {
           albums: [],
@@ -76,7 +76,7 @@ export class FavoritesService {
       return null;
     } else {
       favorite.tracks.push(track.id);
-      const updatedFavorites = await this.database.update<Favorite>(
+      const updatedFavorites = await this.database.update(
         'favorites',
         favorite.id,
         favorite,
@@ -99,7 +99,7 @@ export class FavoritesService {
       return null;
     } else {
       favorite.artists.push(artist.id);
-      const updatedFavorite = await this.database.update<Favorite>(
+      const updatedFavorite = await this.database.update(
         'favorites',
         favorite.id,
         favorite,
@@ -121,7 +121,7 @@ export class FavoritesService {
       return null;
     } else {
       favorite.albums.push(album.id);
-      const updatedFavorite = await this.database.update<Favorite>(
+      const updatedFavorite = await this.database.update(
         'favorites',
         favorite.id,
         favorite,
@@ -135,7 +135,7 @@ export class FavoritesService {
 
     if (favorites.albums.includes(albumId)) {
       const { albums, ...rest } = favorites;
-      const updatedFavorite = await this.database.update<Favorite>(
+      const updatedFavorite = await this.database.update(
         'favorites',
         favorites.id,
         {
@@ -153,7 +153,7 @@ export class FavoritesService {
 
     if (favorite.artists.includes(artistId)) {
       const { artists, ...rest } = favorite;
-      const updatedFavorite = await this.database.update<Favorite>(
+      const updatedFavorite = await this.database.update(
         'favorites',
         favorite.id,
         {
@@ -171,7 +171,7 @@ export class FavoritesService {
 
     if (favorite.tracks.includes(trackId)) {
       const { tracks, ...rest } = favorite;
-      const updatedFavorite = await this.database.update<Favorite>(
+      const updatedFavorite = await this.database.update(
         'favorites',
         favorite.id,
         {
