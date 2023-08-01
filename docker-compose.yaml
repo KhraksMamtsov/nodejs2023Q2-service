@@ -1,0 +1,20 @@
+version: "3.8"
+services:
+  application:
+    depends_on:
+      - database
+    build: .
+    ports:
+      - ${PORT}:${PORT}
+    restart: always
+    environment:
+      PORT: ${PORT}
+  database:
+    build: ./database/
+    ports:
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
