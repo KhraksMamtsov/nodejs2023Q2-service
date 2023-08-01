@@ -43,6 +43,8 @@ model Track {
 }
 
 model Favorites {
-  id     String   @unique @db.Uuid
-  tracks String[] @db.Uuid
+  id      String   @unique @db.Uuid
+  tracks  String[] @db.Uuid
+  albums  String[] @db.Uuid
+  artists String[] @db.Uuid
 }
