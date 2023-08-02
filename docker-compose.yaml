@@ -1,23 +1,39 @@
 version: "3.8"
 services:
+  database:
+    container_name: database
+    networks:
+      - application_network
+    build: ./database/
+    ports:
+      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
+    restart: always
+    volumes:
+      - database_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PORT: "${POSTGRES_PORT}"
+      POSTGRES_USER: "${POSTGRES_USER}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      POSTGRES_DB: "${POSTGRES_DB}"
+
   application:
+    networks:
+      - application_network
     depends_on:
       - database
     build: .
     ports:
-      - ${PORT}:${PORT}
+      - "${PORT}:${PORT}"
     restart: always
     environment:
-      PORT: ${PORT}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-  database:
-    build: ./database/
-    ports:
-      - ${POSTGRES_PORT}:${POSTGRES_PORT}
-    restart: always
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      PORT: "${PORT}"
+      POSTGRES_USER: "${POSTGRES_USER}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      POSTGRES_DB: "${POSTGRES_DB}"
+
+networks:
+  application_network:
+    driver: bridge
+
+volumes:
+  database_data:

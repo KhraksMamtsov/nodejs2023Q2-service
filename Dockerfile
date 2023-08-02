@@ -3,5 +3,5 @@ WORKDIR /usr/app
 COPY package*.json ./
 RUN npm ci --omit=dev
 COPY . .
-RUN npm run build
-CMD ["npm", "run", "start"]
+RUN npx prisma generate && npm run build
+CMD ["npm", "run", "start:docker"]
