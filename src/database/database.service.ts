@@ -6,6 +6,10 @@ type TableName = 'user' | 'artist' | 'album' | 'track' | 'favorites';
 @Injectable()
 export class DatabaseService implements OnModuleInit, OnModuleDestroy {
   private _prismaClient: PrismaClient = new PrismaClient();
+
+  get prismaClient() {
+    return this._prismaClient;
+  }
   onModuleInit() {
     return this._prismaClient.$connect();
   }

@@ -1,18 +1,12 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
 import { DatabaseService } from '../database/database.service';
 import { Track } from './entities/track.entity';
-import { FavoritesService } from '../favorites/favorites.service';
 
 @Injectable()
 export class TrackService {
-  constructor(
-    private readonly database: DatabaseService,
-
-    @Inject(forwardRef(() => FavoritesService))
-    private readonly favoritesService: FavoritesService,
-  ) {}
+  constructor(private readonly database: DatabaseService) {}
   async create(createTrackDto: CreateTrackDto) {
     const createdTrack = await this.database.create('track', createTrackDto);
 
@@ -68,7 +62,6 @@ export class TrackService {
     if (deletedTrack === null) {
       return null;
     } else {
-      await this.favoritesService.removeTrack(deletedTrack.id);
       return new Track(deletedTrack);
     }
   }

@@ -1,187 +1,144 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
 import { NIL } from 'uuid';
-import { TrackService } from '../track/track.service';
-import { AlbumService } from '../album/album.service';
-import { ArtistService } from '../artist/artist.service';
-import { Favorite } from './entities/favorite.entity';
 import { FavoriteDto } from './dto/favorite.dto';
+import { FavoriteDbDto } from './dto/favorite.db.dto';
+import { Album } from '../album/entities/album.entity';
+import { Track } from '../track/entities/track.entity';
+import { Artist } from '../artist/entities/artist.entity';
 
 @Injectable()
-export class FavoritesService {
+export class FavoritesService implements OnModuleInit {
   private static readonly COMMON_ID = NIL;
-  constructor(
-    private readonly database: DatabaseService,
+  constructor(private readonly database: DatabaseService) {}
 
-    @Inject(forwardRef(() => TrackService))
-    private readonly trackService: TrackService,
-
-    @Inject(forwardRef(() => AlbumService))
-    private readonly albumService: AlbumService,
-
-    @Inject(forwardRef(() => ArtistService))
-    private readonly artistService: ArtistService,
-  ) {}
-
-  private async getEntity() {
-    const maybeFavorites = await this.database.findOne(
-      'favorites',
-      FavoritesService.COMMON_ID,
-    );
-    if (maybeFavorites === null) {
-      return this.database.create(
-        'favorites',
-        {
-          albums: [],
-          artists: [],
-          tracks: [],
-        },
-        FavoritesService.COMMON_ID,
-      );
-    } else {
-      return maybeFavorites;
-    }
-  }
-
-  async getDto() {
-    const favorite = await this.getEntity();
-
-    return this.build(favorite);
-  }
-
-  private async build(favorite: Favorite) {
-    const [tracks, albums, artists] = await Promise.all([
-      this.trackService.findWithIds(favorite.tracks),
-      this.albumService.findWithIds(favorite.albums),
-      this.artistService.findWithIds(favorite.artists),
-    ]);
-
-    return new FavoriteDto({
-      albums,
-      artists,
-      tracks,
+  async onModuleInit() {
+    await this.database.prismaClient.favorites.upsert({
+      ...FavoritesService.COMMON_QUERY,
+      create: { id: FavoritesService.COMMON_ID },
+      update: {},
     });
   }
 
+  public static COMMON_QUERY = {
+    where: { id: FavoritesService.COMMON_ID },
+    include: {
+      albums: { include: { album: true } },
+      tracks: { include: { track: true } },
+      artists: { include: { artist: true } },
+    },
+  };
+
+  private static dbDtoToApiDto(dbDto: FavoriteDbDto): FavoriteDto {
+    return new FavoriteDto({
+      albums: dbDto.albums.map((x) => new Album(x.album)),
+      tracks: dbDto.tracks.map((x) => new Track(x.track)),
+      artists: dbDto.artists.map((x) => new Artist(x.artist)),
+    });
+  }
+
+  async getFavorites(): Promise<FavoriteDto> {
+    const favorites = await this.database.prismaClient.favorites.findUnique({
+      ...FavoritesService.COMMON_QUERY,
+    });
+
+    return FavoritesService.dbDtoToApiDto(favorites);
+  }
+
   async addTrack(trackId: string) {
-    const favorite = await this.getEntity();
-
-    if (favorite.tracks.includes(trackId)) {
-      return this.build(favorite);
-    }
-
-    const track = await this.trackService.findOne(trackId);
-
-    if (track === null) {
+    try {
+      await this.database.prismaClient.tracksOnFavorites.create({
+        data: {
+          track: { connect: { id: trackId } },
+          favorites: { connect: { id: FavoritesService.COMMON_ID } },
+        },
+      });
+    } catch {
       return null;
-    } else {
-      favorite.tracks.push(track.id);
-      const updatedFavorites = await this.database.update(
-        'favorites',
-        favorite.id,
-        favorite,
-      );
-
-      return this.build(updatedFavorites);
     }
+
+    return this.getFavorites();
   }
 
   async addArtist(artistId: string) {
-    const favorite = await this.getEntity();
-
-    if (favorite.artists.includes(artistId)) {
-      return this.build(favorite);
-    }
-
-    const artist = await this.artistService.findOne(artistId);
-
-    if (artist === null) {
+    try {
+      await this.database.prismaClient.artistsOnFavorites.create({
+        data: {
+          artist: { connect: { id: artistId } },
+          favorites: { connect: { id: FavoritesService.COMMON_ID } },
+        },
+      });
+    } catch {
       return null;
-    } else {
-      favorite.artists.push(artist.id);
-      const updatedFavorite = await this.database.update(
-        'favorites',
-        favorite.id,
-        favorite,
-      );
-      return this.build(updatedFavorite);
     }
+
+    return this.getFavorites();
   }
 
   async addAlbum(albumId: string) {
-    const favorite = await this.getEntity();
-
-    if (favorite.albums.includes(albumId)) {
-      return this.build(favorite);
-    }
-
-    const album = await this.albumService.findOne(albumId);
-
-    if (album === null) {
+    try {
+      await this.database.prismaClient.albumsOnFavorites.create({
+        data: {
+          album: { connect: { id: albumId } },
+          favorites: { connect: { id: FavoritesService.COMMON_ID } },
+        },
+      });
+    } catch {
       return null;
-    } else {
-      favorite.albums.push(album.id);
-      const updatedFavorite = await this.database.update(
-        'favorites',
-        favorite.id,
-        favorite,
-      );
-      return this.build(updatedFavorite);
     }
+
+    return this.getFavorites();
   }
 
   async removeAlbum(albumId: string) {
-    const favorites = await this.getEntity();
-
-    if (favorites.albums.includes(albumId)) {
-      const { albums, ...rest } = favorites;
-      const updatedFavorite = await this.database.update(
-        'favorites',
-        favorites.id,
-        {
-          ...rest,
-          albums: albums.filter((id) => id !== albumId),
+    const updatedFavorites = await this.database.prismaClient.favorites.update({
+      ...FavoritesService.COMMON_QUERY,
+      data: {
+        albums: {
+          delete: {
+            albumId_favoritesId: {
+              albumId,
+              favoritesId: FavoritesService.COMMON_ID,
+            },
+          },
         },
-      );
-      return this.build(updatedFavorite);
-    } else {
-      return null;
-    }
+      },
+    });
+
+    return FavoritesService.dbDtoToApiDto(updatedFavorites);
   }
   async removeArtist(artistId: string) {
-    const favorite = await this.getEntity();
-
-    if (favorite.artists.includes(artistId)) {
-      const { artists, ...rest } = favorite;
-      const updatedFavorite = await this.database.update(
-        'favorites',
-        favorite.id,
-        {
-          ...rest,
-          artists: artists.filter((id) => id !== artistId),
+    const updatedFavorites = await this.database.prismaClient.favorites.update({
+      ...FavoritesService.COMMON_QUERY,
+      data: {
+        artists: {
+          delete: {
+            artistId_favoritesId: {
+              artistId,
+              favoritesId: FavoritesService.COMMON_ID,
+            },
+          },
         },
-      );
-      return this.build(updatedFavorite);
-    } else {
-      return null;
-    }
+      },
+    });
+
+    return FavoritesService.dbDtoToApiDto(updatedFavorites);
   }
   async removeTrack(trackId: string) {
-    const favorite = await this.getEntity();
-
-    if (favorite.tracks.includes(trackId)) {
-      const { tracks, ...rest } = favorite;
-      const updatedFavorite = await this.database.update(
-        'favorites',
-        favorite.id,
-        {
-          ...rest,
-          tracks: tracks.filter((id) => id !== trackId),
+    const updatedFavorites = await this.database.prismaClient.favorites.update({
+      ...FavoritesService.COMMON_QUERY,
+      data: {
+        tracks: {
+          delete: {
+            trackId_favoritesId: {
+              trackId,
+              favoritesId: FavoritesService.COMMON_ID,
+            },
+          },
         },
-      );
-      return this.build(updatedFavorite);
-    } else {
-      return null;
-    }
+      },
+    });
+
+    return FavoritesService.dbDtoToApiDto(updatedFavorites);
   }
 }
