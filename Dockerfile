@@ -3,8 +3,11 @@ ARG NODE_ENV=production
 ENV NODE_ENV $NODE_ENV
 WORKDIR /usr/app
 COPY package*.json ./
+COPY prisma ./prisma
+COPY tsconfig*.json ./
 RUN npm ci && \
-    npm cache clean --force
+    npm cache clean --force && \
+    npm run db:client:generate
 
 FROM node:18-alpine as builder
 ARG NODE_ENV=production
@@ -15,8 +18,7 @@ COPY src ./
 COPY prisma ./prisma
 COPY nest-cli.json ./
 COPY tsconfig*.json ./
-RUN npm run db:client:generate && \
-    npm run build
+RUN npm run build
 
 FROM node:18-alpine as production
 ARG NODE_ENV=production
