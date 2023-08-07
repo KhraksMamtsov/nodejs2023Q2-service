@@ -12,7 +12,7 @@
     "db:migrations:apply": "npx prisma migrate deploy",
     "db:client:generate": "prisma generate",
     "start:prod:docker": "npm run db:migrations:apply && npm run start:prod",
-    "start:dev:docker": "npm run db:migrations:apply && npm run start:dev",
+    "start:dev:docker": "npm run db:migrations:apply && npm run start:debug",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
