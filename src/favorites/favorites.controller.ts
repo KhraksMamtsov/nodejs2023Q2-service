@@ -39,7 +39,7 @@ export class FavoritesController {
   })
   @Get()
   findAll() {
-    return this.favoritesService.getDto();
+    return this.favoritesService.getFavorites();
   }
 
   @ApiOperation({
