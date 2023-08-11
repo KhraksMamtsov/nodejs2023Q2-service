@@ -15,6 +15,12 @@ services:
     ports:
       - "${POSTGRES_PORT}:${POSTGRES_PORT}"
     restart: always
+    # https://stackoverflow.com/questions/65115627/safe-ways-to-specify-postgres-parameters-for-healthchecks-in-docker-compose
+    healthcheck:
+      test: [ "CMD-SHELL", "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'" ]
+      interval: 10s
+      timeout: 3s
+      retries: 3
     volumes:
       - database_data:/var/lib/postgresql/data
       - database_logs:/logs:z
@@ -28,7 +34,8 @@ services:
     networks:
       - application_network
     depends_on:
-      - database
+      database:
+        condition: service_healthy
     build:
       context: .
       dockerfile: Dockerfile
@@ -43,13 +50,14 @@ services:
     restart: always
     environment:
       PORT: "${PORT}"
-      PRISMA_DB_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database:${POSTGRES_PORT}/${POSTGRES_DB}?schema=public&connect_timeout=60"
+      PRISMA_DB_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}?schema=public&connect_timeout=60"
 
   production:
     networks:
       - application_network
     depends_on:
-      - database
+      database:
+        condition: service_healthy
     build:
       context: .
       dockerfile: Dockerfile
@@ -59,7 +67,7 @@ services:
     restart: always
     environment:
       PORT: "${PORT}"
-      PRISMA_DB_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database:${POSTGRES_PORT}/${POSTGRES_DB}?schema=public&connect_timeout=60"
+      PRISMA_DB_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}?schema=public&connect_timeout=60"
 
 networks:
   application_network:
