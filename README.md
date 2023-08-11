@@ -41,6 +41,14 @@ After starting the app on port (4000 as default) you can open in your browser Op
 
 For more information about OpenAPI/Swagger please visit https://swagger.io/.
 
+## Vulnerabilities scanning
+```bash
+npm run vulnerabilities:scan # alias for "docker scout cves"
+```
+```bash
+npm run vulnerabilities:scan:private # usage example with image in private repo "khraksmamtsov/home-library-service:latest"
+```
+
 ## Testing
 
 After application running open new terminal and enter:
