@@ -1,10 +1,10 @@
 # Home Library Service
 
-1. Task: https://github.com/AlreadyBored/nodejs-assignments/blob/main/assignments/rest-service/assignment.md
+1. Task: https://github.com/AlreadyBored/nodejs-assignments/blob/main/assignments/containerization-database-orm/assignment.md
 2. --
 3. --
-4. Done: 29.07.2023 / deadline: 01.08.2023
-5. Score: 760 / 760
+4. Done: 11.08.2023 / deadline: 15.08.2023
+5. Score: 360 / 360
 
 ## NOTES:
 - You can set `PORT` in `.env` file (look at `.env.example`)
@@ -19,7 +19,7 @@ git clone https://github.com/KhraksMamtsov/nodejs2023Q2-service.git
 cd nodejs2023Q2-service
 ```
 ```bash
-git checkout -b develop
+git checkout -b orm
 ```
 ```bash
 npm ci
@@ -27,12 +27,18 @@ npm ci
 
 ## Running application
 
+### Running in production mode with docker
 ```bash
-npm start
+docker-compose up production
 ```
 
-After starting the app on port (4000 as default) you can open
-in your browser OpenAPI documentation by typing http://localhost:4000/doc/.
+### Running in development mode with hot-reload with docker
+```bash
+docker-compose up development
+```
+
+After starting the app on port (4000 as default) you can open in your browser OpenAPI documentation by typing http://localhost:4000/doc/.
+
 For more information about OpenAPI/Swagger please visit https://swagger.io/.
 
 ## Testing
@@ -43,24 +49,6 @@ To run all tests without authorization
 
 ```bash
 npm run test
-```
-
-To run only one of all test suites
-
-```bash
-npm run test -- <path to suite>
-```
-
-To run all test with authorization
-
-```bash
-npm run test:auth
-```
-
-To run only specific test suite with authorization
-
-```bash
-npm run test:auth -- <path to suite>
 ```
 
 ### Auto-fix and format
