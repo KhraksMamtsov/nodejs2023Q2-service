@@ -3,9 +3,24 @@ import { AppModule } from './app.module';
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
+import { ApplicationLogger } from './logger/application-logger.service';
+import * as process from 'process';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    bufferLogs: true,
+  });
+
+  const logger = app.get(ApplicationLogger);
+
+  app.useLogger(logger);
+
+  process.on('unhandledRejection', async (reason) => {
+    logger.error('unhandledRejection', reason, 'process');
+  });
+  process.on('uncaughtException', (error) => {
+    logger.error('uncaughtException', error, 'process');
+  });
 
   const config = new DocumentBuilder()
     .setTitle('Home Library Service')
@@ -22,6 +37,9 @@ async function bootstrap() {
 
   const port = app.get(ConfigService).get('PORT') || 4000;
 
-  await app.listen(port, () => console.log(`Server listen on port: ${port}`));
+  await app.listen(port, () =>
+    logger.verbose(`Server listen on port: ${port}`, 'bootstrap'),
+  );
 }
+
 bootstrap();
