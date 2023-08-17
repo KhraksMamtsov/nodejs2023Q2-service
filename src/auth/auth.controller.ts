@@ -101,7 +101,7 @@ export class AuthController {
   })
   @ApiBadRequestResponse({
     description:
-      ,
+      'Body does not contain required fields | Refresh token is invalid',
   })
   @ApiNotFoundResponse({
     description: 'There is no such user',
