@@ -24,7 +24,15 @@ export class ApplicationLoggerMiddleware implements NestMiddleware {
     };
 
     res.once('finish', () => {
-      const responseBody = JSON.parse(Buffer.concat(chunks).toString('utf8'));
+      const bodyString = Buffer.concat(chunks).toString('utf8');
+
+      let responseBody: string;
+      try {
+        responseBody = JSON.parse(bodyString);
+      } catch {
+        responseBody = bodyString;
+      }
+
       this.logger.verbose(
         [
           `\n[Request] ${req.method} ${req.url}`,
