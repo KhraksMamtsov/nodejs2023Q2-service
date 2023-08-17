@@ -8,16 +8,20 @@ import { User } from './entities/user.entity';
 export class UserService {
   constructor(private readonly database: DatabaseService) {}
   async create(createUserDto: CreateUserDto) {
-    const createdUser = await this.database.create('user', {
-      ...createUserDto,
-      version: 1,
-    });
+    try {
+      const createdUser = await this.database.create('user', {
+        ...createUserDto,
+        version: 1,
+      });
 
-    return new User({
-      ...createdUser,
-      updatedAt: createdUser.updatedAt.getTime(),
-      createdAt: createdUser.createdAt.getTime(),
-    });
+      return new User({
+        ...createdUser,
+        updatedAt: createdUser.updatedAt.getTime(),
+        createdAt: createdUser.createdAt.getTime(),
+      });
+    } catch {
+      return null;
+    }
   }
 
   async findAll() {
@@ -43,6 +47,20 @@ export class UserService {
         createdAt: maybeUser.createdAt.getTime(),
       });
     }
+  }
+
+  async findByLogin(login: string) {
+    const users = await this.database.findWhere('user', {
+      login,
+    });
+    return users.map(
+      (user) =>
+        new User({
+          ...user,
+          updatedAt: user.updatedAt.getTime(),
+          createdAt: user.createdAt.getTime(),
+        }),
+    );
   }
 
   async update(id: string, updatePasswordDto: UpdatePasswordDto) {

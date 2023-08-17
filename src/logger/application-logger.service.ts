@@ -12,11 +12,20 @@ export class ApplicationLogger extends ConsoleLogger {
 
   constructor(@Inject(ConfigService) configService: ConfigService) {
     super();
+
     this.logLevel = AppLogLevel.fromString(
       configService.get(ApplicationLogger.logLevelEnvKey),
     );
-    this.logMaxFileSize = Number(
-      configService.get(ApplicationLogger.logMaxFileSizeEnvKey),
+
+    this.logMaxFileSize =
+      Number(configService.get(ApplicationLogger.logMaxFileSizeEnvKey)) ?? 1024;
+
+    this.verbose(
+      `Initialized with params ${JSON.stringify({
+        logLevel: this.logLevel,
+        logMaxFileSize: this.logMaxFileSize,
+      })}`,
+      'ApplicationLogger',
     );
   }
 

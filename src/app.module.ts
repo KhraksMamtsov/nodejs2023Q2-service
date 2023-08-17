@@ -7,9 +7,11 @@ import { FavoritesModule } from './favorites/favorites.module';
 import { ConfigModule } from '@nestjs/config';
 import { ApplicationLoggerModule } from './logger/application-logger.module';
 import { ApplicationLoggerMiddleware } from './logger/application-logger.middleware';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
+    AuthModule,
     ConfigModule.forRoot(),
     ApplicationLoggerModule,
     UserModule,
