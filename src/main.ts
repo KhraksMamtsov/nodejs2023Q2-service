@@ -1,10 +1,11 @@
-import { NestFactory, Reflector } from '@nestjs/core';
+import { HttpAdapterHost, NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import { ApplicationLogger } from './logger/application-logger.service';
 import * as process from 'process';
+import { ApplicationLoggerExceptionsFilter } from './logger/application-logger.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -12,8 +13,12 @@ async function bootstrap() {
   });
 
   const logger = app.get(ApplicationLogger);
+  const httpAdapterHost = app.get(HttpAdapterHost);
 
   app.useLogger(logger);
+  app.useGlobalFilters(
+    new ApplicationLoggerExceptionsFilter(httpAdapterHost, logger),
+  );
 
   process.on('unhandledRejection', async (reason) => {
     logger.error('unhandledRejection', reason, 'process');
