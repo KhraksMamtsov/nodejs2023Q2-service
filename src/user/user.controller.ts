@@ -10,6 +10,7 @@ import {
   Put,
   NotFoundException,
   ForbiddenException,
+  ConflictException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -17,6 +18,8 @@ import { UpdatePasswordDto } from './dto/update-password.dto';
 import { StatusCodes } from 'http-status-codes/build/cjs/status-codes';
 import {
   ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiConflictResponse,
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiNoContentResponse,
@@ -25,9 +28,14 @@ import {
   ApiOperation,
   ApiParam,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { User } from './entities/user.entity';
 
+@ApiBearerAuth()
+@ApiUnauthorizedResponse({
+  description: 'Access token is missing or invalid',
+})
 @ApiTags('User')
 @Controller('user')
 export class UserController {
@@ -58,10 +66,17 @@ export class UserController {
   @ApiBadRequestResponse({
     description: 'Body does not contain required fields',
   })
+  @ApiConflictResponse({
+    description: 'Login already exists',
+  })
   @Post()
   @HttpCode(StatusCodes.CREATED)
   async create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
+    const maybeCreatedUser = await this.userService.create(createUserDto);
+    if (maybeCreatedUser === null) {
+      throw new ConflictException('Login already exists');
+    }
+    return maybeCreatedUser;
   }
 
   @ApiOperation({

@@ -13,6 +13,7 @@ import { FavoritesService } from './favorites.service';
 import { StatusCodes } from 'http-status-codes';
 import {
   ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiCreatedResponse,
   ApiNoContentResponse,
   ApiNotFoundResponse,
@@ -20,10 +21,15 @@ import {
   ApiOperation,
   ApiParam,
   ApiTags,
+  ApiUnauthorizedResponse,
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
 import { FavoriteDto } from './dto/favorite.dto';
 
+@ApiBearerAuth()
+@ApiUnauthorizedResponse({
+  description: 'Access token is missing or invalid',
+})
 @ApiTags('Favorites')
 @Controller('favs')
 export class FavoritesController {

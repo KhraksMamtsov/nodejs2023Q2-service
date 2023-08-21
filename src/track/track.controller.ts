@@ -16,6 +16,7 @@ import { UpdateTrackDto } from './dto/update-track.dto';
 import { StatusCodes } from 'http-status-codes/build/cjs/status-codes';
 import {
   ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiCreatedResponse,
   ApiNoContentResponse,
   ApiNotFoundResponse,
@@ -23,9 +24,14 @@ import {
   ApiOperation,
   ApiParam,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { Track } from './entities/track.entity';
 
+@ApiBearerAuth()
+@ApiUnauthorizedResponse({
+  description: 'Access token is missing or invalid',
+})
 @ApiTags('Track')
 @Controller('track')
 export class TrackController {

@@ -16,6 +16,7 @@ import { StatusCodes } from 'http-status-codes/build/cjs/status-codes';
 import { UpdateAlbumDto } from './dto/update-album.dto';
 import {
   ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiCreatedResponse,
   ApiNoContentResponse,
   ApiNotFoundResponse,
@@ -23,9 +24,14 @@ import {
   ApiOperation,
   ApiParam,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { Album } from './entities/album.entity';
 
+@ApiBearerAuth()
+@ApiUnauthorizedResponse({
+  description: 'Access token is missing or invalid',
+})
 @ApiTags('Album')
 @Controller('album')
 export class AlbumController {
