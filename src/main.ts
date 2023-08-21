@@ -5,7 +5,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import { ApplicationLogger } from './logger/application-logger.service';
 import * as process from 'process';
-import { ApplicationLoggerExceptionsFilter } from './logger/application-logger.filter';
+import { ApplicationExceptionsFilter } from './app.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -17,7 +17,7 @@ async function bootstrap() {
 
   app.useLogger(logger);
   app.useGlobalFilters(
-    new ApplicationLoggerExceptionsFilter(httpAdapterHost, logger),
+    new ApplicationExceptionsFilter(httpAdapterHost, logger),
   );
 
   process.on('unhandledRejection', async (reason) => {

@@ -93,14 +93,19 @@ export class ApplicationLogger extends ConsoleLogger {
       status: number;
       body: unknown;
     };
+    exception?: unknown;
   }) {
-    return [
+    const commonPart = [
       `\n[Request] ${args.request.method} ${args.request.url}`,
       `[Body] ${this.stringify(args.request.body)}`,
       `[Query] ${this.stringify(args.request.query)}`,
       `[Response] ${args.response.status} ${this.stringify(
         args.response.body,
       )}`,
-    ].join('\n');
+    ];
+    if (args.exception) {
+      commonPart.push(`[Exception] ${this.stringify(args.exception)}`);
+    }
+    return commonPart.join('\n');
   }
 }
