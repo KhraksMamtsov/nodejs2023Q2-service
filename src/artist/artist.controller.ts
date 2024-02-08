@@ -16,6 +16,7 @@ import { UpdateArtistDto } from './dto/update-artist.dto';
 import { StatusCodes } from 'http-status-codes/build/cjs/status-codes';
 import {
   ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiCreatedResponse,
   ApiNoContentResponse,
   ApiNotFoundResponse,
@@ -23,9 +24,14 @@ import {
   ApiOperation,
   ApiParam,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { Artist } from './entities/artist.entity';
 
+@ApiBearerAuth()
+@ApiUnauthorizedResponse({
+  description: 'Access token is missing or invalid',
+})
 @ApiTags('Artist')
 @Controller('artist')
 export class ArtistController {

@@ -10,7 +10,7 @@ generator client {
 model User {
   id        String   @unique @default(uuid()) @db.Uuid
   password  String
-  login     String
+  login     String   @unique
   version   Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
